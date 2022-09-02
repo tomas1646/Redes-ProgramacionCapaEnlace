@@ -1,0 +1,15 @@
+## Corres este script desde la terminal con el comando:
+## "bash CorrerPrograma.sh"
+
+gnome-terminal  --tab -- bash -c "
+  sleep 1
+  bash $(pwd)/CompilarCorrerEmisor.sh
+"
+
+
+gnome-terminal  --tab -- bash -c "
+  sleep 1
+  bash $(pwd)/CompilarCorrerReceptor.sh
+"
+
+bash $(pwd)/AbrirPuertos.sh
