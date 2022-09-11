@@ -1,18 +1,21 @@
 ## Redes Programacion Capa Enlace
 
-## Como instalar libreria para puertos seriales
+## Como agregar la libreria para correrlo desde el IntelliJ
 
-## La libreria de puerto serial es
+Esta descargada en el proyecto, para agregarla hay que poner en el IntelliJ
+
+Project Structure -> Modules -> Dependencies -> + -> JARs or directories -> '/.../lib/jSerialComm-2.6.2.jar'
+
+## Libreria usada
+
+La libreria de puerto serial es
+
 https://fazecast.github.io/jSerialComm/
 
 Tutorial Escritura y Lectura
 
 https://github.com/Fazecast/jSerialComm/wiki/Blocking-and-Semiblocking-Reading-Usage-Example
 
-
-Esta descargada en el proyecto, para agregarla hay que poner en el IntelliJ
-
-Project Structure -> Modules -> Dependencies -> + -> JARs or directories -> '/.../lib/jSerialComm-2.6.2.jar'
 
 ## Simulador 2 puertos series
 
