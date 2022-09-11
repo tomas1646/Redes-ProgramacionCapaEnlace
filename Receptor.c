@@ -29,13 +29,13 @@ int main(int argc, char **argv) {
 
     while (1) {
         char read_buf[MAX_MSG_LENGTH] = "";
-        int num_bytes = read(fd, read_buf, sizeof(read_buf));
+        int num_char = read(fd, read_buf, sizeof(read_buf));
 
-        if (num_bytes < 0) {
+        if (num_char < 0) {
             printf("Error reading: %s\n", strerror(errno));
             return 1;
         }
 
-        printf("Read %i bytes. Received message: %s\n\n", num_bytes, read_buf);
+        printf("Read %i char. Received message: %s\n\n", num_char, read_buf);
     }
 }
