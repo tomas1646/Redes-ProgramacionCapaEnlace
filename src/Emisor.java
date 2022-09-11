@@ -1,6 +1,5 @@
 import com.fazecast.jSerialComm.SerialPort;
 
-import java.io.IOException;
 import java.util.Scanner;
 
 public class Emisor {
@@ -20,7 +19,10 @@ public class Emisor {
             System.out.print("Mensaje A Enviar: ");
             String str = sc.nextLine();
 
-            serialPort.writeBytes(str.getBytes(), str.getBytes().length);
+            Package paquete = Package.createFromData(str);
+            System.out.printf("Paquete: \n" + paquete + "\n");
+
+            serialPort.writeBytes(paquete.packageToBit().getBytes(), paquete.packageToBit().getBytes().length);
             System.out.println("Mensaje Enviado \n--------------\n\n");
         }
     }

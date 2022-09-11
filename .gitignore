@@ -8,3 +8,8 @@ CMakeLists.txt
 out/
 src/Emisor.class
 src/Receptor.class
+src/Test.java
+src/Test.class
+*.log
+src/BitUtils.class
+src/Package.class

@@ -14,7 +14,7 @@ public class Receptor {
         System.out.println("       Receptor");
         System.out.println("*********************");
 
-        // Va a esperar hasta que se reciba un byte
+        // Va a esperar hasta que se reciba un byte para leer
         serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 0, 0);
         try {
             while (true) {
@@ -24,7 +24,10 @@ public class Receptor {
 
                 String mensaje = new String(readBuffer, 0, numRead, StandardCharsets.UTF_8);
 
-                System.out.println("Read " + numRead + " bytes. Mensaje: " + mensaje);
+                Package packageReceived = Package.createFromBitRepresentation(mensaje);
+
+                System.out.println("Paquete Recibido: \n" + packageReceived.toString() + "\n");
+
             }
         } catch (Exception e) {
             e.printStackTrace();
