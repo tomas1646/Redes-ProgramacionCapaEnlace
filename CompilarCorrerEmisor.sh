@@ -1,5 +1,5 @@
-gcc -o Emisor Emisor.c
+javac src/Emisor.java -cp $(pwd)/lib/jSerialComm-2.9.2.jar
 
 array=($(ls /dev/pts -f))
 
-./Emisor "${array[2]}"
+java -cp "lib/jSerialComm-2.9.2.jar:src" Emisor "${array[2]}"

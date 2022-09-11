@@ -5,3 +5,6 @@ Receptor
 tty0tty/tty0tty
 Help.md
 CMakeLists.txt
+out/
+src/Emisor.class
+src/Receptor.class
