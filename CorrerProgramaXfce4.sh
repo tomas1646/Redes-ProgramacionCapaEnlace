@@ -1,5 +1,5 @@
 ## Corres este script desde la terminal con el comando:
-## "bash CorrerPrograma.sh"
+## "bash CorrerProgramaXfce4.sh"
 javac src/BitUtils.java
 javac -cp src src/Package.java
 xfce4-terminal --tab -e 'bash -c "
