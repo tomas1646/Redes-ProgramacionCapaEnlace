@@ -24,9 +24,20 @@ public class Receptor {
 
                 String mensaje = new String(readBuffer, 0, numRead, StandardCharsets.UTF_8);
 
-                Package packageReceived = Package.createFromBitRepresentation(mensaje);
+                Package packageReceived = Package.createFromBitRepresentation(Hamming.decodeHamming(mensaje));
 
                 System.out.println("Paquete Recibido: \n" + packageReceived.toString() + "\n");
+
+                if(Hamming.checkHamming(mensaje) != 0){
+                    String correctedPack = Hamming.correctDetectError(mensaje);
+                    if(correctedPack == "-2"){
+                        System.out.println("Han ocurrido 2 errores, NO SE PUEDE CORREGIR");
+                    }else{
+                        packageReceived = Package.createFromBitRepresentation(Hamming.decodeHamming(correctedPack));
+                        System.out.println("Paquete corregido: \n" + packageReceived.toString());
+                    }
+                    
+                }
 
             }
         } catch (Exception e) {

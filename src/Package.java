@@ -14,9 +14,9 @@ public class Package {
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("D".repeat(DATA_BYTE_LENGTH));
-        stringBuilder.replace(0, data.length(), data);
-        stringBuilder.reverse();
+        stringBuilder.replace(0, data.length(), data);        
 
+        
         paquete.data = stringBuilder.toString();
 
         paquete.crc = "C".repeat(CRC_BYTE_LENGTH);
@@ -40,9 +40,9 @@ public class Package {
 
     public String packageToBit(){
         StringBuilder sb = new StringBuilder();
-        sb.append(BitUtils.getBitsFromString(header));
+        sb.append(BitUtils.getBitsFromString(header));        
         sb.append(BitUtils.getBitsFromString(data));
         sb.append(BitUtils.getBitsFromString(crc));
         return sb.toString();
-    }
+    }    
 }
