@@ -6,6 +6,8 @@ public class Receptor {
     private static final String PORT_PATH = "/dev/pts/";
 
     public static void main(String[] args) {
+        String stringFrame;
+        Frame frame;
 
         SerialPort serialPort = SerialPort.getCommPort(PORT_PATH + args[0]);
         serialPort.openPort();
@@ -21,28 +23,28 @@ public class Receptor {
                 System.out.println("Esperando Lectura...");
                 byte[] readBuffer = new byte[1024];
                 int numRead = serialPort.readBytes(readBuffer, 1024);
-
                 String mensaje = new String(readBuffer, 0, numRead, StandardCharsets.UTF_8);
 
-                Package packageReceived = Package.createFromBitRepresentation(Hamming.decodeHamming(mensaje));
-
-                System.out.println("Paquete Recibido: \n" + packageReceived.toString() + "\n");
-
-                if(Hamming.checkHamming(mensaje) != 0){
-                    String correctedPack = Hamming.correctDetectError(mensaje);
-                    if(correctedPack == "-2"){
-                        System.out.println("Han ocurrido 2 errores, NO SE PUEDE CORREGIR");
-                    }else{
-                        packageReceived = Package.createFromBitRepresentation(Hamming.decodeHamming(correctedPack));
-                        System.out.println("Paquete corregido: \n" + packageReceived.toString());
+                frame = Frame.detectRepairDamage(mensaje);
+                if (frame!=null){
+                    frame.printFields();
+                    stringFrame=frame.getStringFrame();
+                    System.out.println("Trama recibida: "+stringFrame);  
                     }
-                    
+                
                 }
-
-            }
-        } catch (Exception e) {
+        }catch (Exception e) {
             e.printStackTrace();
         }
 
+        System.out.println("Press Any Key To Continue...");
+        new java.util.Scanner(System.in).nextLine();
+
     }
+
+    public static void sendResponse(){
+        /* Debe enviar un ACK o NAK */
+        
+    }
+
 }

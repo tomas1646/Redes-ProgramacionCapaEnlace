@@ -6,7 +6,11 @@ public class Emisor {
     private static final String PORT_PATH = "/dev/pts/";
 
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);        
+        Scanner sc = new Scanner(System.in);
+        
+        String stringFrame;
+        Integer actual;
+        Integer numSecuencia;
 
         SerialPort serialPort = SerialPort.getCommPort(PORT_PATH + args[0]);
         serialPort.openPort();
@@ -16,29 +20,49 @@ public class Emisor {
         System.out.println("*********************");
 
         while (true) {                        
-            System.out.print("Mensaje A Enviar: ");
-            String str = sc.nextLine();
+           System.out.print("Mensaje A Enviar: ");
+           String str = sc.nextLine();
 
-            Package paquete = Package.createFromData(str);
-            System.out.printf("Paquete: \n" + paquete + "\n");                        
+           numSecuencia=0;
+           actual=0;
+           Frame frame = new Frame(str,0,null,numSecuencia,actual);
+           frame.printFields();
+           
+           stringFrame=frame.getStringFrame();
+           System.out.println("Trama Original: "+stringFrame);  
+           
+           stringFrame=generateDamage(stringFrame);
 
-            String codedPackage = Hamming.addHammingCode(paquete.packageToBit());                           
-            Boolean ans = true;            
-            while(ans){
-                ans = false;
-                System.out.println("¿Desea agregar un error?(s/n): ");
-                char ans2 = sc.nextLine().charAt(0);               
-                if(ans2 == 's'){
-                    System.out.println("Inrese la posicion donde quiere aragar el error(val entero): ");
-                    ans2 = sc.nextLine().charAt(0);
-                    int pos = Integer.valueOf(ans2);
-                    codedPackage = Hamming.addError(codedPackage, pos);          
-                    ans = true;
+           serialPort.writeBytes(stringFrame.getBytes(),stringFrame.getBytes().length);
+           System.out.println("\n\n ---> Trama enviada <--- \n\n");                            
+        }
+
+        //System.out.println("Press Any Key To Continue...");
+        //new java.util.Scanner(System.in).nextLine();
+
+    }
+
+    public static String generateDamage(String stringFrame){
+        Scanner sc = new Scanner(System.in);
+        Character agregar_error;
+        Integer pos_error;
+        while(true){
+            System.out.println("¿Desea agregar un error?(s/n): ");
+            agregar_error = sc.next().charAt(0);;               
+            if(agregar_error.equals('s')){
+                System.out.println("Ingrese la posicion donde quiere aragar el error (valor entero): ");
+                pos_error = sc.nextInt();
+                stringFrame=Hamming.addError(stringFrame,pos_error);
+                System.out.println("Trama Dañada: "+stringFrame);  
+                }
+            else{
+                break;
                 }                
             }
-            
-            serialPort.writeBytes(codedPackage.getBytes(),codedPackage.getBytes().length);
-            System.out.println("Mensaje Enviado \n--------------\n\n");                            
-        }        
+        return stringFrame;
+        }
+    
+    public static void waitResponse(){
+        /* Espera el ACK o en el peor de los casos el NAK */
     }
 }

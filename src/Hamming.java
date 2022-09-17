@@ -113,7 +113,7 @@ public class Hamming {
         }        
     }
 
-    public static String addError(String paquete,int position){ //añade un error en eñ paquete pasado como argumento en la posicion pasada como argumento
+    public static String addError(String paquete,int position){ //añade un error en el paquete pasado como argumento en la posicion pasada como argumento
         char[] errorStr = paquete.toCharArray();
             if(errorStr[position]=='0'){
                 errorStr[position] = '1';

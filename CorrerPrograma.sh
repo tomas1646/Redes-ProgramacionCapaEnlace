@@ -2,7 +2,7 @@
 ## "bash CorrerPrograma.sh"
 
 javac src/BitUtils.java
-javac -cp src src/Package.java
+javac -cp src src/Frame.java
 
 gnome-terminal  --tab -- bash -c "
   sleep 1
