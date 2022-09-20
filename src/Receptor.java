@@ -26,25 +26,21 @@ public class Receptor {
                 String mensaje = new String(readBuffer, 0, numRead, StandardCharsets.UTF_8);
 
                 frame = Frame.detectRepairDamage(mensaje);
-                if (frame!=null){
+                if (frame != null) {
                     frame.printFields();
-                    stringFrame=frame.getStringFrame();
-                    System.out.println("Trama recibida: "+stringFrame);  
-                    }
-                
+                    stringFrame = frame.getStringFrame();
+                    System.out.println("Trama recibida: " + stringFrame);
                 }
-        }catch (Exception e) {
+
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
-        System.out.println("Press Any Key To Continue...");
-        new java.util.Scanner(System.in).nextLine();
-
     }
 
-    public static void sendResponse(){
+    public static void sendResponse() {
         /* Debe enviar un ACK o NAK */
-        
+
     }
 
 }

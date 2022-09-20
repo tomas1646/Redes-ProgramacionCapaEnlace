@@ -9,4 +9,3 @@ out/
 src/*.class
 src/Test.java
 *.log
-*.iml

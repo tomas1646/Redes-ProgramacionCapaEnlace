@@ -1,5 +1,5 @@
 public class BitUtils {
-    
+
     // Dado una cadena de texto, devuelve la cadena en su representacion de bits
     public static String encode(String str) {
         //System.out.println("Codificando...");
@@ -28,17 +28,16 @@ public class BitUtils {
     }
 
     // Convierte un numero a una cadena binaria de n bits
-    public static String convertNumber(Integer numero, Integer nBits){
+    public static String convertNumber(Integer numero, Integer nBits) {
         int max = Integer.parseInt("1".repeat(nBits), 2);
-        if (max>=numero){
+        if (max >= numero) {
             // Es posible representar el número con los nBits
             String numeroBase2 = Integer.toBinaryString(numero);
-            return "0".repeat(nBits-numeroBase2.length())+numeroBase2;
-        }
-        else{
+            return "0".repeat(nBits - numeroBase2.length()) + numeroBase2;
+        } else {
             System.out.println("No es posible representar tal numero con estos bits");
             return "-1";
         }
-        
+
     }
 }
