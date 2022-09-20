@@ -6,10 +6,7 @@ tty0tty/tty0tty
 Help.md
 CMakeLists.txt
 out/
-src/Emisor.class
-src/Receptor.class
+src/*.class
 src/Test.java
-src/Test.class
 *.log
-src/BitUtils.class
-src/Package.class
+*.iml
