@@ -2,12 +2,12 @@ import java.util.Arrays;
 
 
 public class Frame {
-    private static final Integer STARTFLAG_BITS_LENGTH = 8;
-    private static final Integer CONTROL_BITS_LENGTH = 8;
-    private static final Integer LONGITUD_BITS_LENGTH = 7;
-    private static final Integer PAYLAOD_BITS_LENGTH = 96;
-    private static final Integer CRC_BITS_LENGTH = 8;
-    private static final Integer ENDFLAG_BITS_LENGTH = 8;
+    private static final Integer STARTFLAG_BITS = 8;
+    private static final Integer CONTROL_BITS = 2;
+    private static final Integer LENGTH_BITS = 7;
+    private static final Integer PAYLOAD_BITS = 96;
+    private static final Integer CRC_BITS = 8;
+    private static final Integer ENDFLAG_BITS = 8;
     private static final Integer SIZE_CHAR_CONVERSION = 8;
     private String startFlag;
     private String control;
@@ -17,26 +17,40 @@ public class Frame {
 
 
     public Frame(String stringFrame) {
-        this.startFlag = stringFrame.substring(0, STARTFLAG_BITS_LENGTH);
-        String body = Hamming.decodeHamming(stringFrame.substring(STARTFLAG_BITS_LENGTH, STARTFLAG_BITS_LENGTH + CONTROL_BITS_LENGTH + LONGITUD_BITS_LENGTH + PAYLAOD_BITS_LENGTH + CRC_BITS_LENGTH));
-        this.control = body.substring(0, CONTROL_BITS_LENGTH);
-        this.longitud = body.substring(CONTROL_BITS_LENGTH, CONTROL_BITS_LENGTH + LONGITUD_BITS_LENGTH);
-        this.payload = body.substring(CONTROL_BITS_LENGTH + LONGITUD_BITS_LENGTH, CONTROL_BITS_LENGTH + LONGITUD_BITS_LENGTH + PAYLAOD_BITS_LENGTH); //Integer.parseInt(this.longitud, 2)
-        this.endFlag = stringFrame.substring(STARTFLAG_BITS_LENGTH + CONTROL_BITS_LENGTH + LONGITUD_BITS_LENGTH + PAYLAOD_BITS_LENGTH + CRC_BITS_LENGTH, STARTFLAG_BITS_LENGTH + CONTROL_BITS_LENGTH + LONGITUD_BITS_LENGTH + PAYLAOD_BITS_LENGTH + CRC_BITS_LENGTH + ENDFLAG_BITS_LENGTH);
+        this.startFlag = stringFrame.substring(0, STARTFLAG_BITS);
+        String body = Hamming.decodeHamming(stringFrame.substring(STARTFLAG_BITS, STARTFLAG_BITS + CONTROL_BITS + LENGTH_BITS + PAYLOAD_BITS + CRC_BITS));
+        this.control = body.substring(0, CONTROL_BITS);
+        this.longitud = body.substring(CONTROL_BITS, CONTROL_BITS + LENGTH_BITS);
+        this.payload = body.substring(CONTROL_BITS + LENGTH_BITS, CONTROL_BITS + LENGTH_BITS + PAYLOAD_BITS);
+        this.endFlag = stringFrame.substring(STARTFLAG_BITS + CONTROL_BITS + LENGTH_BITS + PAYLOAD_BITS + CRC_BITS, STARTFLAG_BITS + CONTROL_BITS + LENGTH_BITS + PAYLOAD_BITS + CRC_BITS + ENDFLAG_BITS);
     }
 
-    public Frame(String packageNetwork, Integer tipo, Integer subtipo, Integer numSecuencia, Integer siguiente) {
+    public Frame(String packageNetwork, Integer tipo, Integer subtipo, Integer numSecuencia) {
         this.startFlag = "01111110";
+
+        this.generateControl(tipo, subtipo, numSecuencia);
+
         this.payload = BitUtils.encode(packageNetwork);
-        //System.out.println("TEST: "+String.valueOf(PAYLAOD_BITS_LENGTH-this.payload.length())+" - "+this.payload.length());
-        this.payload = this.payload + "0".repeat(PAYLAOD_BITS_LENGTH - this.payload.length());
-        this.longitud = BitUtils.convertNumber(SIZE_CHAR_CONVERSION * packageNetwork.length(), LONGITUD_BITS_LENGTH);
+        this.payload = this.payload + "0".repeat(PAYLOAD_BITS - this.payload.length());
+        this.longitud = BitUtils.convertNumber(SIZE_CHAR_CONVERSION * packageNetwork.length(), LENGTH_BITS);
+
         this.endFlag = "01111110";
-        this.generateControl(tipo, subtipo, numSecuencia, siguiente);
+    }
+
+    public static Frame createACKFrame() {
+        return new Frame("", 1, 0, null);
+    }
+
+    public static Frame createNAKFrame() {
+        return new Frame("", 1, 1, null);
+    }
+
+    public boolean isACKFrame() {
+        return this.control.equals("10");
     }
 
     public void printFields() {
-        System.out.println("\n--------------------------");
+        System.out.println("--------------------------");
         System.out.println("StartFlag: " + startFlag + " (" + startFlag.length() + ")");
         System.out.println("Control: " + control + " (" + control.length() + ")");
         System.out.println("Longitud: " + longitud + " (" + longitud.length() + ")");
@@ -52,31 +66,40 @@ public class Frame {
     }
 
     /*
-    TIPO DE TRAMA:
-    [0] Trama de informacion (como necesita el emisor recibir un ACK habrá sondeo, es decir, una respuesta al envio de tal trama)
-    [1] Trama no numerada (como es el receptro quien hace uso de ella no espera un ACK a tal envio)
-        - Tiene subtipo, sirve para especificar un ACK o NAK
-    [2] Trama de supervision (Quizas no se implemente)
-
+        TIPO DE TRAMA:
+        El primer bit indica el tipo:
+        [0] Trama de informacion (DATOS, se espera respuesta)
+        [1] Trama no numerada (ACK / NACK)
+        El segundo bit indica la secuencia, puede ser 0/1
      */
-    public void generateControl(Integer tipo, Integer subtipo, Integer numSecuencia, Integer siguiente) {
+    public void generateControl(Integer tipo, Integer subtipo, Integer numSecuencia) {
+        if (tipo < 0 || tipo > 1) {
+            System.out.println("Error: Tipo de trama no valido");
+            return;
+        }
+
         if (tipo == 0) {
-            /* Siguiente es el numero actual de la trama que envia */
-            this.control = "0" + BitUtils.convertNumber(numSecuencia, 3) + "1" + BitUtils.convertNumber(siguiente, 3);
-        } else if (tipo == 1) {
-            /* Siguiente es el numero de la trama que espera recibir ahora */
-            this.control = "10" + BitUtils.convertNumber(subtipo, 2) + "0" + BitUtils.convertNumber(siguiente, 3);
+            if (numSecuencia < 0 || numSecuencia > 1) {
+                System.out.println("Error: Numero de secuencia no valido");
+                return;
+            }
+
+            this.control = "0" + BitUtils.convertNumber(numSecuencia, 1);
         } else {
-            /*            
-            NO TENGO PENSADO IMPLEMENTARLA
-            */
+            // tipo == 1
+            if (subtipo < 0 || subtipo > 1) {
+                System.out.println("Error: Subtipo de trama no valido");
+                return;
+            }
+
+            this.control = "1" + BitUtils.convertNumber(subtipo, 1);
         }
     }
 
     public static Frame detectRepairDamage(String stringFrame) {
-        String startFlag = stringFrame.substring(0, STARTFLAG_BITS_LENGTH);
-        String body = stringFrame.substring(STARTFLAG_BITS_LENGTH, STARTFLAG_BITS_LENGTH + CONTROL_BITS_LENGTH + LONGITUD_BITS_LENGTH + PAYLAOD_BITS_LENGTH + CRC_BITS_LENGTH);
-        String endFlag = stringFrame.substring(STARTFLAG_BITS_LENGTH + CONTROL_BITS_LENGTH + LONGITUD_BITS_LENGTH + PAYLAOD_BITS_LENGTH + CRC_BITS_LENGTH, STARTFLAG_BITS_LENGTH + CONTROL_BITS_LENGTH + LONGITUD_BITS_LENGTH + PAYLAOD_BITS_LENGTH + CRC_BITS_LENGTH + ENDFLAG_BITS_LENGTH);
+        String startFlag = stringFrame.substring(0, STARTFLAG_BITS);
+        String body = stringFrame.substring(STARTFLAG_BITS, STARTFLAG_BITS + CONTROL_BITS + LENGTH_BITS + PAYLOAD_BITS + CRC_BITS);
+        String endFlag = stringFrame.substring(STARTFLAG_BITS + CONTROL_BITS + LENGTH_BITS + PAYLOAD_BITS + CRC_BITS, STARTFLAG_BITS + CONTROL_BITS + LENGTH_BITS + PAYLOAD_BITS + CRC_BITS + ENDFLAG_BITS);
         if (Hamming.checkHamming(body) != 0) {
             String correctedPack = Hamming.correctDetectError(body);
             if (correctedPack == "-2") {
@@ -90,5 +113,12 @@ public class Frame {
         return new Frame(stringFrame);
     }
 
+    public Integer getSequenceNumber() {
+        return Integer.parseInt(this.control.substring(1, 2), 2);
+    }
+
+    public String getMessage() {
+        return BitUtils.decode(this.payload.substring(0, Integer.parseInt(this.longitud, 2)));
+    }
 }
 
